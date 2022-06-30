@@ -3,7 +3,7 @@ matrix.rt.add('cart_tracking', async function () {
 })
 
 m.cart_tracking = {};
-m.cart_tracking.cart_tracking = function (id = false, draft = false) {
+m.cart_tracking.cart_tracking = function () {
    m.clearPage();
    let window_frame = new m.ui._new.window(page.mainpage, {size: {height: "100%"}, header: "Cart Tracking"});
    window_frame.windowSegments.center.getDom().innerHTML = m.templates.cart_tracking["cart_tracking.html"] // use catalog name
@@ -175,7 +175,7 @@ m.cart_tracking.cart_tracking = function (id = false, draft = false) {
             }
          },
       },
-      async created() {
+      async mounted() {
          await this.getMatrixData()
          this.createRows()
          this.createHeaders()
