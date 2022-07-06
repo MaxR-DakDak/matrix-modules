@@ -1,0 +1,57 @@
+<style>
+    .additional__container {
+        font-size: 14px;
+        height: 100%;
+        width: 100%;
+        overflow: scroll;
+    }
+    .additional__row {
+        width: 100%;
+        max-width: 500px;
+    }
+    .additional__line {
+        display: inline-flex;
+        justify-content: left;
+        align-items: center;
+        width: 100%;
+        gap: 25px;
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
+    .additional__label {
+        min-width: 175px;
+    }
+    .additional__inputs-block {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+        flex-grow: 1;
+    }
+</style>
+
+<div id="vue_matrix_additional_rebate" class="additional__container">
+	<template v-for="item in html">
+		<div class="additional__row">
+			<div class="additional__line">
+				<div class="additional__label" v-on:click="optional[item.category] = !optional[item.category] ">
+					<input type="checkbox" v-model="optional[item.category] ">
+					{{ item.label }}
+				</div>
+				<template v-if="optional[item.category]">
+					<div class="additional__inputs-block">
+						<template v-for="index in item.items">
+							<vue-component-datalist_input
+								:items="matrix.products_all"
+								:item="item.item_value && item.item_value[index-1] ? Object.keys(item.item_value[index-1])[0] : null"
+								:value="item.item_value && item.item_value[index-1] ? Object.values(item.item_value[index-1])[0] : 0"
+								@input="getInputValue($event, item.category, index-1)">
+							</vue-component-datalist_input>
+						</template>
+					</div>
+				</template>
+			</div>
+		</div>
+	</template>
+	<div class="hidden__btn" id="vue_hidden_btn" v-on:click="submitForm()"></div>
+</div>
+

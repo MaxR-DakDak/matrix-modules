@@ -1,0 +1,254 @@
+<div id="vue_matrix_rebate" class="vue_matrix_rebate">
+	<div class="rebate__container">
+		<!--CODE-->
+		<div class="rebate__row">
+			<div id="nameDiv">Rebate Code (min symbols 3)</div>
+			<input id="name" v-model="name">
+			<div id="nameError" class="rebate__err"></div>
+		</div>
+		<!--TEXT-->
+		<div class="rebate__row">
+			<div>Text (max symbols 256)</div>
+			<input id="text" v-model="text">
+			<div id="textError" class="rebate__err"></div>
+		</div>
+		<!--ONLY TEXT-->
+		<div class="rebate__row">
+			<div>Text promo only (no rebate value)</div>
+			<select class="rebate__select" v-model="onlyText">
+				<option :value="1">Yes</option>
+				<option :value="0">No</option>
+			</select>
+		</div>
+		<!--REGION-->
+		<div class="rebate__row">
+			<div>Region</div>
+			<select class="rebate__select" v-model="regionSelected">
+				<option v-for="region in regionList" v-bind:value="region.id">
+					{{ region.fullname }}
+				</option>
+			</select>
+		</div>
+		<!--END DATE-->
+		<div class="rebate__row">
+			<div>End Date</div>
+			<input id="vue_datepicker" v-model="dateSelected" type="text">
+		</div>
+		<!--USES-->
+		<div class="rebate__row">
+			<div>Uses</div>
+			<input v-model="uses" @keypress="isNumber($event)">
+		</div>
+
+		<!--ITEMS-->
+		<div class="rebate__items" v-if="itemsGeneralData.length">
+			<div class="rebate__items-title">
+				<div> Item and Action:</div>
+				<div> Use % for percent discount <br> Use 0 for no discount <br> Default to value discount</div>
+			</div>
+			<div class="rebate__items-for" v-for="item in itemsGeneralData">
+				<template v-for="(value, name) in item">
+					<span class="rebate__items-span">{{name}}</span>
+					<label class="rebate__items-label" :for="name"> {{showCurrency(value)}}</label>
+					<input @keypress="isNumber($event)"
+					       v-on:change="itemAdd(name, models.itemsGeneralData[name], true)"
+					       v-model="models.itemsGeneralData[name]"
+					       class="rebate__input-number"
+					       :name="name">
+					<i v-on:click="itemRemove(name, true)" class="far fa-times-circle"></i>
+				</template>
+			</div>
+		</div>
+		<div class="rebate__row">
+			<div>
+				Promo Items
+			</div>
+			<div v-if="!itemsInput">
+				<button id="itemGenBtn" v-on:click="itemsInput = true">Add items</button>
+			</div>
+			<div v-else class="rebate__row-input">
+				<input v-on:mouseover="mouseOver('itemGen')"
+				       v-on:input="itemAdd(itemsGeneral, 0,  true);"
+				       v-model="itemsGeneral"
+				       id="itemGen"
+				       type="text"
+				       class="rebate__input"
+				       placeholder="Search"
+				       list="itemsGen">
+				<datalist id="itemsGen">
+					<option v-for="item in itemsList" v-bind:value="item.value">{{item.name}}</option>
+				</datalist>
+				<i v-on:click="itemsInput = !itemsInput" class="far fa-times-circle"></i>
+			</div>
+			<div id="itemsListError" class="rebate__err"></div>
+		</div>
+
+		<!--BUNDLE ITEMS-->
+		<template v-if="optional.showBundle">
+			<div class="rebate__items" v-if="itemsFreeData.length">
+				<div class="rebate__items-title">
+					<div> Item and Action:</div>
+					<div> Use % for percent discount <br> Use 0 for no discount <br> Default to value discount</div>
+				</div>
+				<div class="rebate__items-for" v-for="item in itemsFreeData">
+					<template v-for="(value, name) in item">
+						<span class="rebate__items-span">{{name}}</span>
+						<label class="rebate__items-label" :for="name"> {{showCurrency(value)}}</label>
+						<input @keypress="isNumber($event)"
+						       v-on:change="itemAdd(name, models.itemsFreeData[name])"
+						       v-model="models.itemsFreeData[name]"
+						       class="rebate__input-number"
+						       :name="name">
+						<i v-on:click="itemRemove(name)" class="far fa-times-circle"></i>
+					</template>
+				</div>
+			</div>
+		</template>
+		<div class="rebate__row">
+			<div v-on:click="optional.showBundle = !optional.showBundle">
+				<input type="checkbox" v-model="optional.showBundle">
+				Extra Bundle Item
+			</div>
+			<template v-if="optional.showBundle">
+				<div v-if="!itemsFreeInput">
+					<button v-on:click="itemsFreeInput = true">Add items</button>
+				</div>
+				<div v-else class="rebate__row-input">
+					<input
+						v-on:mouseover="mouseOver('itemFree')"
+						v-on:input="itemAdd(itemsFree, 0);"
+						v-model="itemsFree"
+						id="itemFree"
+						type="text"
+						class="rebate__input"
+						placeholder="Search"
+						list="itemsFree">
+					<datalist id="itemsFree">
+						<option v-for="item in itemsList" v-bind:value="item.value">{{item.name}}</option>
+					</datalist>
+					<i v-on:click="itemsFreeInput = !itemsFreeInput" class="far fa-times-circle"></i>
+				</div>
+			</template>
+		</div>
+
+		<!--GAMING CODES-->
+		<template v-if="optional.showGameCodes">
+			<div class="rebate__items" v-if="itemsKeysData.length">
+				<div class="rebate__items-title">Keys: </div>
+				<div class="rebate__items-for" v-for="(item, index) in itemsKeysData">
+					<template v-if="index < 10">
+						<template v-for="(value, name) in item">
+							<span class="rebate__items-span">{{name}}</span>
+							<i v-on:click="gameKeysRemove(name)" class="far fa-times-circle"></i>
+						</template>
+					</template>
+					<template v-else-if="index == 11">
+						<span></span>
+						<span class="rebate__items-span">More {{itemsKeysData.length - 10}} keys</span>
+					</template>
+				</div>
+			</div>
+		</template>
+		<div class="rebate__row">
+			<div v-on:click="optional.showGameCodes = !optional.showGameCodes">
+				<input type="checkbox" v-model="optional.showGameCodes">
+				Game keys
+			</div>
+			<template v-if="optional.showGameCodes">
+				<div v-if="!itemsKeysInput">
+					<button v-on:click="itemsKeysInput = true">Add keys</button>
+				</div>
+				<div v-else class="rebate__row-input">
+					<input
+						v-on:mouseover="mouseOver('itemsKeys')"
+						v-on:change="gameKeysAdd(itemsKeys);"
+						v-model="itemsKeys"
+						id="itemsKeys"
+						class="rebate__input"
+						placeholder="Paste here">
+					<i class="fas fa-check"></i>
+				</div>
+			</template>
+		</div>
+
+		<!--SHIPPING-->
+		<div class="rebate__row">
+			<div v-on:click="optional.showShipping = !optional.showShipping">
+				<input type="checkbox" v-model="optional.showShipping">
+				Free Standard Shipping
+			</div>
+		</div>
+		<!--PER ORDER-->
+		<div class="rebate__row">
+			<div v-on:click="optional.showLimitOrder = !optional.showLimitOrder">
+				<input type="checkbox" v-model="optional.showLimitOrder">
+				Limit Uses per Order
+			</div>
+			<input v-if="optional.showLimitOrder" v-model="usesPerOrder" @keypress="isNumber($event)">
+		</div>
+		<!--EMAIL-->
+		<div class="rebate__row">
+			<div v-on:click="optional.showLimitEmail = !optional.showLimitEmail">
+				<input type="checkbox" v-model="optional.showLimitEmail">
+				Limit to email
+			</div>
+			<template v-if="optional.showLimitEmail">
+				<input
+					v-on:mouseover="mouseOver('clientID')"
+					v-model="clientSelected"
+					id="clientID"
+					type="text"
+					placeholder="Search"
+					list="itemsClient">
+				<datalist id="itemsClient">
+					<option v-for="item in clientList" v-bind:value="item.name">{{item.name}}</option>
+				</datalist>
+			</template>
+			<div id="clientIDError" class="rebate__err"></div>
+		</div>
+
+		<!--REF-->
+		<div class="rebate__row">
+			<div v-on:click="optional.showReferral = !optional.showReferral">
+				<input type="checkbox" v-model="optional.showReferral">
+				Referral email
+			</div>
+			<template v-if="optional.showReferral">
+				<input
+					v-on:mouseover="mouseOver('refID')"
+					v-model="refSelected"
+					id="refID"
+					type="text"
+					placeholder="Search"
+					list="itemsRef">
+				<datalist id="itemsRef">
+					<option v-for="item in clientList" v-bind:value="item.name">{{item.name}}</option>
+				</datalist>
+			</template>
+		</div>
+		<div class="rebate__items" v-if="refSelected && optional.showReferral">
+			<div class="rebate__items-title">
+				<div> Referral points pre order:</div>
+				<div> Use % for percent action <br> Use 0 for no action <br> Default to value action</div>
+			</div>
+			<div class="rebate__items-for">
+				<label style="margin-right: 5px" for="refAction"> {{showCurrency(refAction)}}</label>
+				<input @keypress="isNumber($event)"
+				       v-on:change="refAction = prepareAction(refAction)"
+				       class="rebate__input-number"
+				       v-model="refAction"
+				       name="refAction">
+			</div>
+		</div>
+		<div class="rebate__row" v-if="refSelected && optional.showReferral && rebateDraft">
+			<div>Referral Points Used</div>
+			<input v-model="referral_points_used" @keypress="isNumber($event)">
+		</div>
+
+		<!--SAVE-->
+		<div class="rebate__btn" id="vue_hidden_btn" v-on:click="checkForm()">
+			Hidden
+		</div>
+	</div>
+</div>
+

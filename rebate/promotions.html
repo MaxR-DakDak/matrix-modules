@@ -1,0 +1,150 @@
+<div id="vue_matrix_promotions" class="vue_matrix_promotions">
+	<div class="promotions__container">
+		<!--NAME-->
+		<div class="promotions__row">
+			<div class="promotions__title">Promo Name</div>
+			<input v-model="models.name">
+			<div id="name_error" class="rebate__err"></div>
+		</div>
+		<!--MAIN BANNER-->
+		<div class="promotions__row">
+			<div class="promotions__title">Banner - /promo page</div>
+			<input class="promotions__input_file" v-on:change="setFakeFileName($event)" id="mainBanner" ref="mainBanner" type="file" >
+			<button><label class="promotions__label" for="mainBanner"> {{fakeFilesName.mainBanner ? fakeFilesName.mainBanner : 'No file selected.'}}</label></button>
+			<div id="mainBanner_error" class="rebate__err"></div>
+		</div>
+
+		<!--MAIN BANNER LONG-->
+		<div class="promotions__row">
+			<div class="promotions__title">Banner Long - /promo page</div>
+			<input class="promotions__input_file" v-on:change="setFakeFileName($event)" id="mainBannerLong" type="file" ref="mainBannerLong">
+			<button><label class="promotions__label" for="mainBannerLong"> {{fakeFilesName.mainBannerLong ? fakeFilesName.mainBannerLong : 'No file selected.'}}</label></button>
+			<div id="mainBannerLong_error" class="rebate__err"></div>
+		</div>
+
+		<!--MAIN LINK-->
+		<div class="promotions__row">
+			<div class="promotions__title">Banner link</div>
+			<input v-model="models.mainBannerLink">
+			<div id="mainBannerLink_error" class="rebate__err"></div>
+		</div>
+		<!--MINI BANNER-->
+		<div class="promotions__row">
+			<div class="promotions__title">Mini Banner - /laptops page</div>
+			<input class="promotions__input_file" v-on:change="setFakeFileName($event)" id="miniBanner" type="file" ref="miniBanner">
+			<button><label class="promotions__label" for="miniBanner"> {{fakeFilesName.miniBanner ? fakeFilesName.miniBanner : 'No file selected.'}}</label></button>
+			<div id="miniBanner_error" class="rebate__err"></div>
+		</div>
+		<!--MINI BANNER LINK-->
+		<div class="promotions__row">
+			<div class="promotions__title">Mini Banner Link</div>
+			<input v-model="models.miniBannerLink">
+			<div id="miniBannerLink_error" class="rebate__err"></div>
+		</div>
+		<!-- RULES -->
+		<div class="promotions__row">
+			<div class="promotions__title">Regulations</div>
+			<input class="promotions__input_file" v-on:change="setFakeFileName($event)" id="regulations" type="file" ref="regulations">
+			<button><label class="promotions__label" for="regulations"> {{fakeFilesName.regulations ? fakeFilesName.regulations : 'No file selected.'}}</label></button>
+			<div id="regulations_error" class="rebate__err"></div>
+		</div>
+
+		<!--	LANDING PAGE	-->
+		<div class="promotions__row promotions__row_big">
+			<div class="promotions__title"></div>
+			<div class="promotions__title">Text for Landing Page <br> Jezyk format - example.example</div>
+		</div>
+		<!-- LANDING PAGE TITLE1 -->
+		<div class="promotions__row">
+			<div class="promotions__title">Landing Title 1</div>
+			<input v-model="models.landingPageTitle1">
+			<div id="landingPageTitle1_error" class="rebate__err"></div>
+		</div>
+		<!-- LANDING PAGE TEXT1 -->
+		<div class="promotions__row">
+			<div class="promotions__title">Landing Text 1</div>
+			<input v-model="models.landingPageText1">
+			<div id="landingPageText1_error" class="rebate__err"></div>
+		</div>
+		<!-- LANDING PAGE TITLE2 -->
+		<div class="promotions__row">
+			<div class="promotions__title">Landing Title 2</div>
+			<input v-model="models.landingPageTitle2">
+			<div id="landingPageTitle2_error" class="rebate__err"></div>
+		</div>
+		<!-- LANDING PAGE TEXT2 -->
+		<div class="promotions__row">
+			<div class="promotions__title">Landing Text 2</div>
+			<input v-model="models.landingPageText2">
+			<div id="landingPageText2_error" class="rebate__err"></div>
+		</div>
+
+		<!--END DATE-->
+		<div class="promotions__row">
+			<div class="promotions__title">End Date</div>
+			<input id="selectedDate" v-model="models.selectedDate">
+			<div id="selectedDate_error" class="rebate__err"></div>
+		</div>
+		<!--REGION-->
+		<div class="promotions__row">
+			<div class="promotions__title">Region</div>
+			<select class="promotions__select" v-model="models.selectedRegion">
+				<option v-for="region in regionList" v-bind:value="region.id">
+					{{ region.fullname }}
+				</option>
+			</select>
+		</div>
+
+		<!--PRODUCTS-->
+		<div class="promotions__row promotions__row_big" v-if="models.selectedProductList.length">
+			<div class="promotions__title">Promo Products</div>
+			<div class="promotions__items">
+				<div v-for="product in models.selectedProductList">
+					<span>{{product}}</span>
+					<i v-on:click="productRemove(product)" class="far fa-times-circle"></i>
+				</div>
+			</div>
+		</div>
+		<div class="promotions__row">
+			<div class="promotions__title">Add Product</div>
+			<div v-if="!visible.productInput">
+				<button id="itemGenBtn" v-on:click="visible.productInput = true">Add items</button>
+			</div>
+			<div v-else class="promotions__row_input">
+				<input
+					v-on:mouseover="mouseOver($event)"
+					v-on:input="productAdd(models.selectedProduct)"
+					v-model="models.selectedProduct"
+					id="productsInput"
+					class="rebate__input"
+					placeholder="Search"
+					list="products">
+				<datalist id="products">
+					<option v-for="product in products.list" v-bind:value="product.value">{{product.name}}</option>
+				</datalist>
+				<i v-on:click="visible.productInput  = !visible.productInput" class="far fa-times-circle"></i>
+			</div>
+			<div id="selectedProductList_error" class="rebate__err"></div>
+		</div>
+
+		<!--CREATE REBATE CODE-->
+		<div class="promotions__row">
+			<div v-on:click="optional.createRebate = !optional.createRebate">
+				<input type="checkbox" v-model="optional.createRebate">
+				Create Rebate Code
+			</div>
+		</div>
+
+		<!--GLOBAL ERROR-->
+		<div class="promotions__row">
+			<div></div>
+			<div id="global_error" class="rebate__err"></div>
+		</div>
+
+		<!--SAVE-->
+		<div class="hidden__btn" id="vue_hidden_btn" v-on:click="checkForm()">
+			Hidden
+		</div>
+	</div>
+</div>
+
